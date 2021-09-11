@@ -1,8 +1,7 @@
-import { parseISO, addDays, differenceInDays, format, addMonths, getDate, subDays, isAfter, isSameDay } from 'date-fns';
+import { parseISO, addDays, differenceInDays, format, addMonths, subDays, isAfter, isSameDay } from 'date-fns';
 import { PaymentFrequency } from '../consts/constants.js';
 
 const getResponse = function () {
-    console.log('GET RESPONSE');
     return function (req, res) {
         var items = getLineItems(req.query);
         return res.status(200)
@@ -15,7 +14,6 @@ function getLineItems(queryParams) {
     let endDate = queryParams.end_date;
     let paymentFrequency = queryParams.frequency;
     let weeklyRent = queryParams.weekly_rent;
-    let timeZone = queryParams.timeZone;
 
     if (paymentFrequency === PaymentFrequency.WEEKLY.value) {
         return getWeekly(startDate, endDate, weeklyRent);
@@ -29,6 +27,7 @@ function getLineItems(queryParams) {
         return getMonthly(weeklyRent, startDate, endDate);
     }
 
+    // should not reach this point since the validation is done at the receive
     return [];
 }
 
@@ -72,11 +71,9 @@ function getMonthly(weeklyRent, startDate, endDate) {
     let isoStart = parseISO(startDate);
     let isoEnd = parseISO(endDate);
 
-    let originalPaymentDay = getDate(isoStart);
     let paymentStart = isoStart;
     let itemCounter = 0;
     while (true) {
-        // let nextPayment = nextPaymentInMonth(originalPaymentDay, paymentStart);
         let nextPayment = addMonths(isoStart, itemCounter + 1);
         if (isAfter(nextPayment, isoEnd)) {
             // Calculated payment date is after the end of the range.
