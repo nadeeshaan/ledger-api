@@ -9,6 +9,11 @@ const WEEKLY_RENT = 'weekly_rent';
 
 const queryParams = [START_DATE, END_DATE, FREQUENCY, WEEKLY_RENT];
 
+/**
+ * Request validator will validate the get request for the /ledger.
+ * 
+ * @returns validator function which will be passed to the express validator chain
+ */
 const requestValidator = function () {
     return (req, res, next) => {
         try {
@@ -28,12 +33,22 @@ const requestValidator = function () {
     };
 }
 
+/**
+ * Validate whether start date is before the end date
+ * @param {start date in ISO format} start 
+ * @param {end date in ISO format} end 
+ */
 function dateRangeValidator(start, end) {
     if (!isBefore(start, end)) {
         throw new ValidationError('start date should be before the end date');
     }
 }
 
+/**
+ * Validate the request parameters
+ * @param {Request parameters} req 
+ * @returns validation status or otherwise throws a ValidationError
+ */
 function validateParams(req) {
     for (let paramName of queryParams) {
         let paramValue = req.query[paramName];
